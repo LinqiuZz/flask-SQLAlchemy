@@ -1,0 +1,83 @@
+{% if role == 'admin' %}
+<div class="admin-section" style="background-color: #f9f9f9; padding: 10px; border: 1px solid #ddd;">
+    <h3>新增读者（管理员专享）</h3>
+    <form action="/add_reader" method="POST">
+        <input type="text" name="reader_id" placeholder="读者编号" required>
+        <input type="text" name="name" placeholder="读者姓名" required>
+        <button type="submit">新增读者</button>
+    </form>
+</div>
+<hr>
+{% endif %}
+<h3>图书借阅</h3>
+<form action="/borrow_book" method="POST">
+    <select name="book_id" required>
+        <option value="">请选择图书</option>
+        {% for book in available_books %}
+            <option value="{{ book.id }}">{{ book.name }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="reader_id" required>
+        {% if role == 'admin' %}<option value="">请选择借阅人</option>{% endif %}
+        {% for r in readers %}
+            <option value="{{ r.reader_id }}">{{ r.name }} ({{ r.reader_id }})</option>
+        {% endfor %}
+    </select>
+    <button type="submit">确认借阅</button>
+</form>
+
+<hr>
+
+{% if role == 'admin' %}
+    <h3>全馆借阅监控 (管理员)</h3>
+    <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th>书名</th>
+                <th>借阅人编号</th>
+                <th>借阅时间</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in borrowed_books %}
+            <tr>
+                <td>{{ book.name }}</td>
+                <td style="color: blue; font-weight: bold;">{{ book.borrower_id }}</td>
+                <td>{{ book.borrow_time }}</td>
+                <td>
+                    <form action="/return_book" method="POST">
+                        <input type="hidden" name="book_id" value="{{ book.id }}">
+                        <button type="submit" style="color: red;">强制归还</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" style="text-align: center;">当前馆内无借出书籍</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% else %}
+    <h3>我的借阅状态 / 归还</h3>
+    <ul style="list-style: none; padding: 0;">
+        {% for book in borrowed_books %}
+        <li style="padding: 10px; border-bottom: 1px solid #eee;">
+            <span style="display: inline-block; width: 200px; font-weight: bold;">{{ book.name }}</span>
+            <span style="color: #666; margin-right: 20px;">{{ book.borrow_time }}</span>
+            <form action="/return_book" method="POST" style="display: inline;">
+                <input type="hidden" name="book_id" value="{{ book.id }}">
+                <button type="submit">点击归还</button>
+            </form>
+        </li>
+        {% else %}
+            <li style="color: #999;">你当前没有借阅任何图书。</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<br>
+<a href="{{ url_for('index') }}">
+    <button type="button" style="padding: 10px 20px; cursor: pointer;">返回首页</button>
+</a>

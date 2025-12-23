@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>图书馆系统 - 登录</title>
+</head>
+<body>
+    <h2>欢迎使用图书馆系统</h2>
+    <form action="/login" method="POST">
+        <p>用户名: <input type="text" name="username" required></p>
+        <p>密  码: <input type="password" name="password" required></p>
+        <button type="submit">立即登录</button>
+    </form>
+    <br>
+    <form action="/logout" method="POST">
+        <button type="submit">退出登录</button>
+    </form>
+<div>
+    <h3 style="color: red">#初创读者初始密码：123456</h3>
+</div>
+</body>
+</html>

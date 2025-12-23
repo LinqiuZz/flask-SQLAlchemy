@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>图书管理</title>
+    <style>
+        body { padding: 20px; font-family: Arial; }
+        table { border-collapse: collapse; margin-top: 20px; width: 80%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        .flash { color: red; margin: 10px 0; }
+        form { margin-bottom: 20px; }
+        input { margin-right: 10px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>图书管理</h1>
+    {% if session.get('username') %}
+        <div style="text-align: right; background: #f0f0f0; padding: 10px;">
+            当前登录：<strong>{{ session['username'] }}</strong>
+            身份：<span>{{ '管理员' if session['role'] == 'admin' else '普通读者' }}</span>
+            <a href="/logout">退出登录</a>
+        </div>
+    {% endif %}
+    <!-- 提示信息（新增/错误提示） -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="flash">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- 1. 搜索表单 -->
+    <form action="/books" method="GET">
+        <input type="text" name="keyword" placeholder="输入书名/作者搜索" value="{{ keyword }}">
+        <button type="submit">搜索</button>
+    </form>
+{% if session.get('role') == 'admin' %}
+    <!-- 2. 新增图书表单 -->
+    <form action="/add_book" method="POST">
+        <h3>新增图书</h3>
+        <input type="text" name="name" placeholder="书名（必填）" required>
+        <input type="text" name="author" placeholder="作者">
+        <input type="text" name="isbn" placeholder="ISBN（唯一）">
+        <button type="submit">新增</button>
+    </form>
+{% endif %}
+    <!-- 3. 图书列表 -->
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>书名</th>
+            <th>作者</th>
+            <th>ISBN</th>
+            <th>状态</th>
+            <th>借阅时间</th>
+        </tr>
+        {% for book in books %}
+        <tr>
+            <td>{{ book.id }}</td>
+            <td>{{ book.name }}</td>
+            <td>{{ book.author or '未填写' }}</td>
+            <td>{{ book.isbn or '未填写' }}</td>
+            <td>{{ book.status }}</td>
+            <td>{{ book.borrow_time.strftime('%Y-%m-%d %H:%M') if book.borrow_time else '-' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6">暂无图书数据</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="/">返回首页</a>
+</body>
+</html>
